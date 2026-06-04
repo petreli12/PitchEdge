@@ -63,6 +63,9 @@ TELEGRAM_CHAT_ID: str = _get_str("TELEGRAM_CHAT_ID", "")
 # overridden via env / Streamlit secrets.
 TELEGRAM_JOIN_URL: str = _get_str("TELEGRAM_JOIN_URL", "https://t.me/pitchedgeWC26")
 
+# Public channel handle used as the footer attribution on posted cards.
+TELEGRAM_CHANNEL_HANDLE: str = _get_str("TELEGRAM_CHANNEL_HANDLE", "@pitchedgeWC26")
+
 # --- Public dashboard deploy --------------------------------------------------
 # When set (or when a bundled `data/snapshot/` exists), the Streamlit app serves
 # a read-only snapshot instead of querying Postgres. This is how the locked

@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 API_BASE = "https://api.telegram.org/bot{token}/{method}"
 CAPTION_LIMIT = 1024
-_HANDLE = "@PitchEdge"  # footer attribution; set to your real channel handle
+_HANDLE = config.TELEGRAM_CHANNEL_HANDLE  # footer attribution; from config/env
 
 
 # --------------------------------------------------------------------------- #
