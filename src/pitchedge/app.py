@@ -137,19 +137,16 @@ rows are shown alongside for comparison only.
             "Title odds will appear here once tournament simulations are published."
         )
 
-    st.subheader("Stay in the loop")
     form_url = config.SUBSCRIBE_FORM_URL.strip()
-    if ds.is_snapshot_mode():
-        # No writable subscribers DB on the public deploy. Use an external form
-        # if configured; otherwise rely on Telegram rather than silently
-        # dropping submissions.
-        if form_url:
-            st.link_button(
-                "Get updates", form_url, use_container_width=True
-            )
-        else:
-            st.caption("Follow along on Telegram below for updates.")
-    else:
+    join_url = config.TELEGRAM_JOIN_URL.strip()
+    snapshot = ds.is_snapshot_mode()
+
+    # "Stay in the loop" only renders when there is a real capture path. On the
+    # public deploy there is no writable subscribers DB, so we use an external
+    # form if one is configured and otherwise fall back to Telegram — never an
+    # in-app form that would silently drop submissions.
+    if not snapshot:
+        st.subheader("Stay in the loop")
         with st.form("subscribe", clear_on_submit=False):
             email = st.text_input("Email", placeholder="you@example.com")
             submitted = st.form_submit_button("Get updates")
@@ -173,10 +170,12 @@ rows are shown alongside for comparison only.
             )
         elif st.session_state.get("subscribe_error"):
             st.error(st.session_state["subscribe_error"])
+    elif form_url:
+        st.subheader("Stay in the loop")
+        st.link_button("Get updates", form_url, use_container_width=True)
 
-    join_url = config.TELEGRAM_JOIN_URL.strip()
     if join_url:
-        st.subheader("Telegram")
+        st.subheader("Join on Telegram")
         st.link_button("Join on Telegram", join_url, use_container_width=True)
 
 
