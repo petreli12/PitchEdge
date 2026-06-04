@@ -1,0 +1,43 @@
+# Secrets / environment
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Large / licensed source data (not for distribution). The committed exception
+# below is the small, derived, public dashboard snapshot + the WC2026 config CSVs.
+data/kaggle/
+data/backtest/
+!data/snapshot/
+!data/snapshot/**
+!data/wc2026/
+!data/wc2026/**
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# uv
+.uv/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+
+# OS / editor
+.DS_Store
+
+# Generated artifacts
+*.png
+backtest_report.md

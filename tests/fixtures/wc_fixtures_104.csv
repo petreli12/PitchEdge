@@ -1,0 +1,105 @@
+fixture_id,kickoff_utc,home_id,away_id,stage,group_label,status
+1,2026-06-12T17:00:00+00:00,1,2,Group A,A,scheduled
+2,2026-06-13T17:00:00+00:00,3,4,Group A,A,scheduled
+3,2026-06-14T17:00:00+00:00,1,3,Group A,A,scheduled
+4,2026-06-15T17:00:00+00:00,2,4,Group A,A,scheduled
+5,2026-06-16T17:00:00+00:00,1,4,Group A,A,scheduled
+6,2026-06-17T17:00:00+00:00,2,3,Group A,A,scheduled
+7,2026-06-18T17:00:00+00:00,5,6,Group B,B,scheduled
+8,2026-06-19T17:00:00+00:00,7,8,Group B,B,scheduled
+9,2026-06-20T17:00:00+00:00,5,7,Group B,B,scheduled
+10,2026-06-21T17:00:00+00:00,6,8,Group B,B,scheduled
+11,2026-06-22T17:00:00+00:00,5,8,Group B,B,scheduled
+12,2026-06-23T17:00:00+00:00,6,7,Group B,B,scheduled
+13,2026-06-24T17:00:00+00:00,9,10,Group C,C,scheduled
+14,2026-06-25T17:00:00+00:00,11,12,Group C,C,scheduled
+15,2026-06-26T17:00:00+00:00,9,11,Group C,C,scheduled
+16,2026-06-27T17:00:00+00:00,10,12,Group C,C,scheduled
+17,2026-06-28T17:00:00+00:00,9,12,Group C,C,scheduled
+18,2026-06-29T17:00:00+00:00,10,11,Group C,C,scheduled
+19,2026-06-30T17:00:00+00:00,13,14,Group D,D,scheduled
+20,2026-07-01T17:00:00+00:00,15,16,Group D,D,scheduled
+21,2026-07-02T17:00:00+00:00,13,15,Group D,D,scheduled
+22,2026-07-03T17:00:00+00:00,14,16,Group D,D,scheduled
+23,2026-07-04T17:00:00+00:00,13,16,Group D,D,scheduled
+24,2026-07-05T17:00:00+00:00,14,15,Group D,D,scheduled
+25,2026-07-06T17:00:00+00:00,17,18,Group E,E,scheduled
+26,2026-07-07T17:00:00+00:00,19,20,Group E,E,scheduled
+27,2026-07-08T17:00:00+00:00,17,19,Group E,E,scheduled
+28,2026-07-09T17:00:00+00:00,18,20,Group E,E,scheduled
+29,2026-07-10T17:00:00+00:00,17,20,Group E,E,scheduled
+30,2026-07-11T17:00:00+00:00,18,19,Group E,E,scheduled
+31,2026-07-12T17:00:00+00:00,21,22,Group F,F,scheduled
+32,2026-07-13T17:00:00+00:00,23,24,Group F,F,scheduled
+33,2026-07-14T17:00:00+00:00,21,23,Group F,F,scheduled
+34,2026-07-15T17:00:00+00:00,22,24,Group F,F,scheduled
+35,2026-07-16T17:00:00+00:00,21,24,Group F,F,scheduled
+36,2026-07-17T17:00:00+00:00,22,23,Group F,F,scheduled
+37,2026-07-18T17:00:00+00:00,25,26,Group G,G,scheduled
+38,2026-07-19T17:00:00+00:00,27,28,Group G,G,scheduled
+39,2026-07-20T17:00:00+00:00,25,27,Group G,G,scheduled
+40,2026-07-21T17:00:00+00:00,26,28,Group G,G,scheduled
+41,2026-07-22T17:00:00+00:00,25,28,Group G,G,scheduled
+42,2026-07-23T17:00:00+00:00,26,27,Group G,G,scheduled
+43,2026-07-24T17:00:00+00:00,29,30,Group H,H,scheduled
+44,2026-07-25T17:00:00+00:00,31,32,Group H,H,scheduled
+45,2026-07-26T17:00:00+00:00,29,31,Group H,H,scheduled
+46,2026-07-27T17:00:00+00:00,30,32,Group H,H,scheduled
+47,2026-07-28T17:00:00+00:00,29,32,Group H,H,scheduled
+48,2026-07-29T17:00:00+00:00,30,31,Group H,H,scheduled
+49,2026-07-30T17:00:00+00:00,33,34,Group I,I,scheduled
+50,2026-07-31T17:00:00+00:00,35,36,Group I,I,scheduled
+51,2026-08-01T17:00:00+00:00,33,35,Group I,I,scheduled
+52,2026-08-02T17:00:00+00:00,34,36,Group I,I,scheduled
+53,2026-08-03T17:00:00+00:00,33,36,Group I,I,scheduled
+54,2026-08-04T17:00:00+00:00,34,35,Group I,I,scheduled
+55,2026-08-05T17:00:00+00:00,37,38,Group J,J,scheduled
+56,2026-08-06T17:00:00+00:00,39,40,Group J,J,scheduled
+57,2026-08-07T17:00:00+00:00,37,39,Group J,J,scheduled
+58,2026-08-08T17:00:00+00:00,38,40,Group J,J,scheduled
+59,2026-08-09T17:00:00+00:00,37,40,Group J,J,scheduled
+60,2026-08-10T17:00:00+00:00,38,39,Group J,J,scheduled
+61,2026-08-11T17:00:00+00:00,41,42,Group K,K,scheduled
+62,2026-08-12T17:00:00+00:00,43,44,Group K,K,scheduled
+63,2026-08-13T17:00:00+00:00,41,43,Group K,K,scheduled
+64,2026-08-14T17:00:00+00:00,42,44,Group K,K,scheduled
+65,2026-08-15T17:00:00+00:00,41,44,Group K,K,scheduled
+66,2026-08-16T17:00:00+00:00,42,43,Group K,K,scheduled
+67,2026-08-17T17:00:00+00:00,45,46,Group L,L,scheduled
+68,2026-08-18T17:00:00+00:00,47,48,Group L,L,scheduled
+69,2026-08-19T17:00:00+00:00,45,47,Group L,L,scheduled
+70,2026-08-20T17:00:00+00:00,46,48,Group L,L,scheduled
+71,2026-08-21T17:00:00+00:00,45,48,Group L,L,scheduled
+72,2026-08-22T17:00:00+00:00,46,47,Group L,L,scheduled
+73,2026-08-23T17:00:00+00:00,1,2,Round of 32,,scheduled
+74,2026-08-24T17:00:00+00:00,1,2,Round of 32,,scheduled
+75,2026-08-25T17:00:00+00:00,1,2,Round of 32,,scheduled
+76,2026-08-26T17:00:00+00:00,1,2,Round of 32,,scheduled
+77,2026-08-27T17:00:00+00:00,1,2,Round of 32,,scheduled
+78,2026-08-28T17:00:00+00:00,1,2,Round of 32,,scheduled
+79,2026-08-29T17:00:00+00:00,1,2,Round of 32,,scheduled
+80,2026-08-30T17:00:00+00:00,1,2,Round of 32,,scheduled
+81,2026-08-31T17:00:00+00:00,1,2,Round of 32,,scheduled
+82,2026-09-01T17:00:00+00:00,1,2,Round of 32,,scheduled
+83,2026-09-02T17:00:00+00:00,1,2,Round of 32,,scheduled
+84,2026-09-03T17:00:00+00:00,1,2,Round of 32,,scheduled
+85,2026-09-04T17:00:00+00:00,1,2,Round of 32,,scheduled
+86,2026-09-05T17:00:00+00:00,1,2,Round of 32,,scheduled
+87,2026-09-06T17:00:00+00:00,1,2,Round of 32,,scheduled
+88,2026-09-07T17:00:00+00:00,1,2,Round of 32,,scheduled
+89,2026-09-08T17:00:00+00:00,1,2,Round of 32,,scheduled
+90,2026-09-09T17:00:00+00:00,1,2,Round of 32,,scheduled
+91,2026-09-10T17:00:00+00:00,1,2,Round of 32,,scheduled
+92,2026-09-11T17:00:00+00:00,1,2,Round of 32,,scheduled
+93,2026-09-12T17:00:00+00:00,1,2,Round of 32,,scheduled
+94,2026-09-13T17:00:00+00:00,1,2,Round of 32,,scheduled
+95,2026-09-14T17:00:00+00:00,1,2,Round of 32,,scheduled
+96,2026-09-15T17:00:00+00:00,1,2,Round of 32,,scheduled
+97,2026-09-16T17:00:00+00:00,1,2,Round of 32,,scheduled
+98,2026-09-17T17:00:00+00:00,1,2,Round of 32,,scheduled
+99,2026-09-18T17:00:00+00:00,1,2,Round of 32,,scheduled
+100,2026-09-19T17:00:00+00:00,1,2,Round of 32,,scheduled
+101,2026-09-20T17:00:00+00:00,1,2,Round of 32,,scheduled
+102,2026-09-21T17:00:00+00:00,1,2,Round of 32,,scheduled
+103,2026-09-22T17:00:00+00:00,1,2,Round of 32,,scheduled
+104,2026-09-23T17:00:00+00:00,1,2,Round of 32,,scheduled

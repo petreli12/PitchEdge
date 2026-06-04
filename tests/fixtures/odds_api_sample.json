@@ -1,0 +1,73 @@
+[
+  {
+    "id": "sample_event_001",
+    "sport_key": "soccer_fifa_world_cup",
+    "sport_title": "FIFA World Cup",
+    "commence_time": "2026-06-11T17:00:00Z",
+    "home_team": "Team 1",
+    "away_team": "Team 2",
+    "bookmakers": [
+      {
+        "key": "pinnacle",
+        "title": "Pinnacle",
+        "last_update": "2026-06-01T12:00:00Z",
+        "markets": [
+          {
+            "key": "h2h",
+            "last_update": "2026-06-01T12:00:00Z",
+            "outcomes": [
+              {"name": "Team 1", "price": 2.10},
+              {"name": "Team 2", "price": 3.40},
+              {"name": "Draw", "price": 3.25}
+            ]
+          }
+        ]
+      },
+      {
+        "key": "bet365",
+        "title": "Bet365",
+        "last_update": "2026-06-01T12:05:00Z",
+        "markets": [
+          {
+            "key": "h2h",
+            "outcomes": [
+              {"name": "Team 1", "price": 2.05},
+              {"name": "Team 2", "price": 3.50},
+              {"name": "Draw", "price": 3.20}
+            ]
+          },
+          {
+            "key": "spreads",
+            "outcomes": [
+              {"name": "Team 1", "price": 1.91, "point": -0.5},
+              {"name": "Team 2", "price": 1.91, "point": 0.5}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sample_event_unmapped",
+    "sport_key": "soccer_fifa_world_cup",
+    "commence_time": "2026-06-12T20:00:00Z",
+    "home_team": "Unknown Home",
+    "away_team": "Unknown Away",
+    "bookmakers": [
+      {
+        "key": "pinnacle",
+        "last_update": "2026-06-01T12:00:00Z",
+        "markets": [
+          {
+            "key": "h2h",
+            "outcomes": [
+              {"name": "Unknown Home", "price": 2.00},
+              {"name": "Unknown Away", "price": 3.00},
+              {"name": "Draw", "price": 3.50}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

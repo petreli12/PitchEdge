@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: pitchedge-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pitchedge
+      POSTGRES_PASSWORD: pitchedge
+      POSTGRES_DB: pitchedge
+    ports:
+      - "5432:5432"
+    volumes:
+      - pitchedge_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pitchedge -d pitchedge"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pitchedge_pgdata:

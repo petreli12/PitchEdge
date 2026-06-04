@@ -1,0 +1,57 @@
+# PitchEdge — Cursor Project Rules
+
+You are helping build PitchEdge, a publicly-calibrated World Cup prediction
+engine and content product. Read docs/PRD.md and docs/ARCHITECTURE.md before
+generating code. When a task is ambiguous, re-read those docs rather than
+guessing.
+
+## Prime directives
+- Calibration over accuracy. We optimize and report proper scoring rules
+  (Brier, log loss), never win-rate vanity metrics.
+- The match_predictions table is APPEND-ONLY and IMMUTABLE after kickoff. Never
+  write code that updates or deletes a logged prediction. Guard every prediction
+  insert so predicted_utc < kickoff_utc, else raise.
+- This is an analytics/content product, NOT a betting product. Never write code
+  that places, brokers, or facilitates real-money wagers, manages a betting
+  bankroll, or integrates a sportsbook account.
+
+## Stack & conventions
+- Python 3.12, dependency management with `uv` (pyproject.toml). No global pip.
+- Package code lives under `src/pitchedge/`. Tests under `tests/` mirroring the
+  package layout. One responsibility per module.
+- Postgres 16 via Docker Compose. DB access through a single `db.py` layer;
+  no raw connection strings scattered across modules. Use SQLAlchemy core or
+  psycopg with parameterized queries — never string-format SQL.
+- Config (API keys, DB url, Telegram token) via environment variables loaded
+  from a `.env` that is gitignored. Never hardcode secrets. Provide `.env.example`.
+- All randomness takes an explicit seed argument; simulations must be
+  reproducible. Default seed lives in config.
+- Type hints on all public functions. Docstrings stating units (probabilities in
+  [0,1], goals as expected counts, times in UTC).
+- Times are UTC everywhere internally; convert only at the display edge.
+
+## Modeling rules
+- Probabilities for a match must sum to 1 (assert/renormalize). Never return
+  un-normalized vectors past the model boundary.
+- De-vig before using any market odds as a probability.
+- The blend weight `w` is a config value chosen by backtest, not a magic number
+  inline. Document its provenance.
+- For low-data teams, shrink Dixon-Coles params toward the Elo/confederation
+  prior. Flag (in logs) any team with < N qualifying historical matches.
+
+## Quality bar
+- Every model and sim module ships with pytest tests, including at least one
+  property test (e.g., probabilities sum to 1; sim advancement probs per group
+  sum to ~4 expected advancers within tolerance).
+- Pure functions where possible; isolate I/O (DB, network) behind thin adapters
+  so the math is unit-testable without a database.
+- Prefer clear, explicit code over cleverness. No premature abstraction.
+- When you finish a task, state which validation steps from docs/BUILD_PLAN.md
+  the user should run, and stop. Do not start the next phase unprompted.
+
+## Things to avoid
+- Do not invent data source endpoints. If an API's exact schema is unknown,
+  write an adapter with a clearly-marked TODO and a fixture-based test, and tell
+  the user what to confirm.
+- Do not claim the model beats the market in any code comment, log, or UI string.
+- No emojis in code. Keep log output structured and parseable.

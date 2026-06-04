@@ -1,0 +1,10 @@
+# Public dashboard deploy (Streamlit Community Cloud).
+# Lean read-path only: the deployed app serves the bundled data/snapshot/ and
+# never connects to Postgres, so no DB driver / model-fitting deps are needed.
+# Full dev/runtime dependencies live in pyproject.toml (managed with uv).
+streamlit==1.58.0
+pandas==3.0.3
+numpy==2.4.6
+matplotlib==3.10.9
+SQLAlchemy==2.0.50
+python-dotenv==1.2.2

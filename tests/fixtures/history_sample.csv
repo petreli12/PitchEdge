@@ -1,0 +1,6 @@
+date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
+1872-11-30,Scotland,England,0,0,Friendly,Glasgow,Scotland,FALSE
+1930-07-13,France,Mexico,4,1,FIFA World Cup,Montevideo,Uruguay,TRUE
+1930-07-30,Uruguay,Argentina,4,2,FIFA World Cup,Montevideo,Uruguay,TRUE
+1873-03-08,England,Scotland,4,2,Friendly,London,England,FALSE
+1930-07-14,Brazil,Yugoslavia,1,2,FIFA World Cup,Montevideo,Uruguay,TRUE
