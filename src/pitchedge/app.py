@@ -50,9 +50,7 @@ MOBILE_CSS = """
 """
 
 def _pages() -> tuple[str, ...]:
-    """Public deploy (snapshot mode) hides the internal launch-board preview."""
-    if ds.is_snapshot_mode():
-        return ("Predictions", "About")
+    """Nav sections. The launch board renders public-safe copy in snapshot mode."""
     return ("Predictions", "Launch board", "About")
 
 
@@ -377,47 +375,58 @@ def render_launch_board(
     sim_rows: list[dict[str, Any]],
     receipt: dict[str, Any],
 ) -> None:
+    public = ds.is_snapshot_mode()
     st.title("Pre-tournament launch board")
-    st.caption(
-        "Internal preview — not published. Every match probability below must already "
-        "exist in `match_predictions` from `make predict` (pre-kickoff guard) before "
-        "June 11. This board is the locked receipts baseline, not a live recompute."
-    )
-
-    upcoming = int(receipt.get("upcoming_fixtures") or 0)
-    with_model = int(receipt.get("fixtures_with_model_pred") or 0)
-    if upcoming == 0:
-        st.error("No upcoming fixtures in DB.")
-    elif with_model < upcoming:
-        st.error(
-            f"Only {with_model}/{upcoming} upcoming fixtures have a model prediction. "
-            "Run `make predict` until all are logged before launch."
+    if public:
+        st.caption(
+            "Every team's title odds and our biggest model-vs-market disagreements. "
+            "All match probabilities here were logged before kickoff (append-only "
+            "receipts) — a locked baseline, not a live recompute. The market is shown "
+            "for comparison; it is our benchmark, not something we claim to beat."
         )
     else:
-        st.success(
-            f"All {upcoming} upcoming fixtures have model predictions logged "
-            f"(batch window {_kickoff_label(receipt.get('latest_model_utc'))})."
+        st.caption(
+            "Internal preview. Every match probability below must already exist in "
+            "`match_predictions` from `make predict` (pre-kickoff guard) before "
+            "June 11. This board is the locked receipts baseline, not a live recompute."
         )
 
-    missing_odds = ds.fixtures_missing_odds()
-    if missing_odds:
-        st.warning(
-            f"{len(missing_odds)} scheduled fixture(s) still have no `odds_snapshots` row."
-        )
-        st.dataframe(
-            pd.DataFrame(
-                [
-                    {
-                        "Fixture": f"{r['home']} vs {r['away']}",
-                        "Kickoff": _kickoff_label(r["kickoff_utc"]),
-                        "fixture_id": r["fixture_id"],
-                    }
-                    for r in missing_odds
-                ]
-            ),
-            use_container_width=True,
-            hide_index=True,
-        )
+    # Internal QA only (prediction coverage + missing odds): hidden on the public deploy.
+    if not public:
+        upcoming = int(receipt.get("upcoming_fixtures") or 0)
+        with_model = int(receipt.get("fixtures_with_model_pred") or 0)
+        if upcoming == 0:
+            st.error("No upcoming fixtures in DB.")
+        elif with_model < upcoming:
+            st.error(
+                f"Only {with_model}/{upcoming} upcoming fixtures have a model prediction. "
+                "Run `make predict` until all are logged before launch."
+            )
+        else:
+            st.success(
+                f"All {upcoming} upcoming fixtures have model predictions logged "
+                f"(batch window {_kickoff_label(receipt.get('latest_model_utc'))})."
+            )
+
+        missing_odds = ds.fixtures_missing_odds()
+        if missing_odds:
+            st.warning(
+                f"{len(missing_odds)} scheduled fixture(s) still have no `odds_snapshots` row."
+            )
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        {
+                            "Fixture": f"{r['home']} vs {r['away']}",
+                            "Kickoff": _kickoff_label(r["kickoff_utc"]),
+                            "fixture_id": r["fixture_id"],
+                        }
+                        for r in missing_odds
+                    ]
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
 
     st.subheader("Title odds (latest sim)")
     if sim_rows:
@@ -430,31 +439,39 @@ def render_launch_board(
             hide_index=True,
             column_config={"P(win)": st.column_config.NumberColumn(format="percent")},
         )
-    else:
+    elif not public:
         st.info("Run `make sim` to populate title odds.")
+    else:
+        st.info("Title odds will appear once simulations are published.")
 
     st.subheader("Top model vs market disagreements")
+    st.caption(
+        "Fixtures where our standalone model differs most from the de-vigged market."
+    )
     try:
         ranked = ds.ranked_disagreements(limit=8)
     except Exception as exc:
-        st.error("Could not load model-vs-market disagreements from the database.")
-        with st.expander("Technical details"):
-            st.code(str(exc))
+        st.error("Could not load model-vs-market disagreements.")
+        if not public:
+            with st.expander("Technical details"):
+                st.code(str(exc))
         ranked = []
 
     if not ranked:
-        st.info(
-            "No paired model and market predictions found for upcoming fixtures. "
-            "Run `make predict` after odds are ingested."
-        )
+        if public:
+            st.info("No model-vs-market disagreements to show yet.")
+        else:
+            st.info(
+                "No paired model and market predictions found for upcoming fixtures. "
+                "Run `make predict` after odds are ingested."
+            )
     else:
         for d in ranked:
             c = d.candidate
-            st.markdown(
-                f"**{c.home} vs {c.away}** ({c.stage}) — TVD {d.tvd:.3f}  \n{d.note}"
-            )
-        st.caption("Headline pick for daily content:")
-        st.write(ranked[0].note)
+            line = f"**{c.home} vs {c.away}** ({c.stage})"
+            if not public:
+                line += f" — TVD {d.tvd:.3f}"
+            st.markdown(f"{line}  \n{d.note}")
 
 
 def _load_dashboard_data() -> tuple[
