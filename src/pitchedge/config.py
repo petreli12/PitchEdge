@@ -72,6 +72,14 @@ DASHBOARD_SNAPSHOT_DIR: str = _get_str("DASHBOARD_SNAPSHOT_DIR", "")
 # email form is hidden in snapshot mode (we never silently drop submissions).
 SUBSCRIBE_FORM_URL: str = _get_str("SUBSCRIBE_FORM_URL", "")
 
+# Endpoint the in-app email form POSTs to on the public deploy (e.g. a Formspree
+# form action, Tally, or a Google Form `formResponse` URL). When set, the
+# landing keeps the in-app form + "you're on the list" success state and submits
+# server-side over HTTP. ``SUBSCRIBE_EMAIL_FIELD`` is the form field name the
+# endpoint expects (Formspree/Tally: "email"; Google Forms: "entry.<id>").
+SUBSCRIBE_POST_URL: str = _get_str("SUBSCRIBE_POST_URL", "")
+SUBSCRIBE_EMAIL_FIELD: str = _get_str("SUBSCRIBE_EMAIL_FIELD", "email")
+
 # --- Reproducibility ----------------------------------------------------------
 # Project-wide default seed. Simulations must be reproducible given inputs.
 RANDOM_SEED: int = _get_int("RANDOM_SEED", 20260611)

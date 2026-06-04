@@ -30,6 +30,8 @@ if str(_SRC) not in sys.path:
 _BRIDGED_KEYS = (
     "DASHBOARD_SNAPSHOT_DIR",
     "SUBSCRIBE_FORM_URL",
+    "SUBSCRIBE_POST_URL",
+    "SUBSCRIBE_EMAIL_FIELD",
     "TELEGRAM_JOIN_URL",
     "DB_URL",
 )

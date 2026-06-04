@@ -51,3 +51,42 @@ def capture_subscriber_email(
     if inserted:
         return True, "Thanks — you are on the list."
     return True, "You are already subscribed."
+
+
+def post_subscriber_email(
+    raw_email: str,
+    *,
+    post_url: str,
+    field: str = "email",
+    timeout: float = 10.0,
+) -> tuple[bool, str]:
+    """Submit an email to an external capture endpoint over HTTP.
+
+    Used on the public (DB-free) deploy so the landing keeps the in-app form and
+    its success state without a writable database. ``post_url`` is a Formspree /
+    Tally / Google Form action; ``field`` is the form field name the endpoint
+    expects. Returns ``(ok, message)``; never raises on network errors.
+    """
+    email = normalize_email(raw_email)
+    if not email:
+        return False, "Enter an email address."
+    if not is_valid_email(email):
+        return False, "Please enter a valid email address (e.g. you@example.com)."
+    if not post_url:
+        return False, "Signup is not configured yet."
+
+    import requests
+
+    try:
+        resp = requests.post(
+            post_url,
+            data={field: email},
+            headers={"Accept": "application/json"},
+            timeout=timeout,
+        )
+    except requests.RequestException:
+        return False, "Could not reach the signup service. Please try again later."
+
+    if resp.status_code in (200, 201, 202, 204):
+        return True, "Thanks — you're on the list."
+    return False, "Something went wrong signing you up. Please try again later."

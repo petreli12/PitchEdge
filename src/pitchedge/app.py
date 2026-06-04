@@ -23,7 +23,10 @@ import streamlit as st
 from pitchedge import config
 from pitchedge.content.calibration_tracker import model_vs_market_gap
 from pitchedge.dashboard import data as ds
-from pitchedge.dashboard.subscribers import capture_subscriber_email
+from pitchedge.dashboard.subscribers import (
+    capture_subscriber_email,
+    post_subscriber_email as capture_subscriber_email_http,
+)
 from pitchedge.eval.calibration import reliability_curve
 
 UTC = timezone.utc
@@ -92,6 +95,32 @@ def _reliability_figure(series: dict[str, Any]) -> plt.Figure:
     return fig
 
 
+def _render_subscribe_form(submit_fn) -> None:
+    """Render the email form + persistent success/error state.
+
+    ``submit_fn(email) -> (ok, message)`` is the storage strategy (DB write in
+    live mode, HTTP POST to an external endpoint on the public deploy).
+    """
+    st.subheader("Stay in the loop")
+    with st.form("subscribe", clear_on_submit=False):
+        email = st.text_input("Email", placeholder="you@example.com")
+        submitted = st.form_submit_button("Get updates")
+        if submitted:
+            ok, msg = submit_fn(email)
+            st.session_state["subscribe_ok"] = ok
+            if ok:
+                st.session_state["subscribe_msg"] = msg
+                st.session_state.pop("subscribe_error", None)
+            else:
+                st.session_state.pop("subscribe_msg", None)
+                st.session_state["subscribe_error"] = msg
+
+    if st.session_state.get("subscribe_ok"):
+        st.success(st.session_state.get("subscribe_msg", "Thanks — you're on the list."))
+    elif st.session_state.get("subscribe_error"):
+        st.error(st.session_state["subscribe_error"])
+
+
 def render_landing(sim_rows: list[dict[str, Any]] | None) -> None:
     """Public About page: copy, title-odds proof, email capture, optional Telegram."""
     st.title("PitchEdge")
@@ -138,38 +167,24 @@ rows are shown alongside for comparison only.
         )
 
     form_url = config.SUBSCRIBE_FORM_URL.strip()
+    post_url = config.SUBSCRIBE_POST_URL.strip()
     join_url = config.TELEGRAM_JOIN_URL.strip()
     snapshot = ds.is_snapshot_mode()
 
-    # "Stay in the loop" only renders when there is a real capture path. On the
-    # public deploy there is no writable subscribers DB, so we use an external
-    # form if one is configured and otherwise fall back to Telegram — never an
-    # in-app form that would silently drop submissions.
+    # "Stay in the loop" only renders when there is a real capture path. We never
+    # show an in-app form that would silently drop submissions:
+    #   - live DB mode      -> in-app form writing to `subscribers`
+    #   - snapshot + POST URL-> in-app form submitting over HTTP (success state kept)
+    #   - snapshot + form URL-> a button linking out to an external form
+    #   - otherwise          -> nothing (Telegram CTA below, if configured)
     if not snapshot:
-        st.subheader("Stay in the loop")
-        with st.form("subscribe", clear_on_submit=False):
-            email = st.text_input("Email", placeholder="you@example.com")
-            submitted = st.form_submit_button("Get updates")
-            if submitted:
-                ok, msg = capture_subscriber_email(email)
-                if ok:
-                    st.session_state["subscribe_ok"] = True
-                    st.session_state["subscribe_msg"] = msg
-                    st.session_state.pop("subscribe_error", None)
-                else:
-                    st.session_state["subscribe_ok"] = False
-                    st.session_state.pop("subscribe_msg", None)
-                    st.session_state["subscribe_error"] = msg
-
-        if st.session_state.get("subscribe_ok"):
-            st.success(
-                st.session_state.get(
-                    "subscribe_msg",
-                    "Thanks — you're on the list.",
-                )
+        _render_subscribe_form(lambda e: capture_subscriber_email(e))
+    elif post_url:
+        _render_subscribe_form(
+            lambda e: capture_subscriber_email_http(
+                e, post_url=post_url, field=config.SUBSCRIBE_EMAIL_FIELD
             )
-        elif st.session_state.get("subscribe_error"):
-            st.error(st.session_state["subscribe_error"])
+        )
     elif form_url:
         st.subheader("Stay in the loop")
         st.link_button("Get updates", form_url, use_container_width=True)
