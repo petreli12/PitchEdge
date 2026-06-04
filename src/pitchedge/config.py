@@ -58,8 +58,10 @@ NARRATIVE_MODEL: str = _get_str("NARRATIVE_MODEL", "claude-sonnet-4-6")
 # --- Telegram (content distribution) ------------------------------------------
 TELEGRAM_BOT_TOKEN: str = _get_str("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID: str = _get_str("TELEGRAM_CHAT_ID", "")
-# Public join link for dashboard CTA (channel or t.me/... URL).
-TELEGRAM_JOIN_URL: str = _get_str("TELEGRAM_JOIN_URL", "")
+# Public join link for dashboard CTA (channel or t.me/... URL). Default is the
+# live PitchEdge channel; this is a public URL (not a secret) and can be
+# overridden via env / Streamlit secrets.
+TELEGRAM_JOIN_URL: str = _get_str("TELEGRAM_JOIN_URL", "https://t.me/pitchedgeWC26")
 
 # --- Public dashboard deploy --------------------------------------------------
 # When set (or when a bundled `data/snapshot/` exists), the Streamlit app serves
@@ -77,7 +79,11 @@ SUBSCRIBE_FORM_URL: str = _get_str("SUBSCRIBE_FORM_URL", "")
 # landing keeps the in-app form + "you're on the list" success state and submits
 # server-side over HTTP. ``SUBSCRIBE_EMAIL_FIELD`` is the form field name the
 # endpoint expects (Formspree/Tally: "email"; Google Forms: "entry.<id>").
-SUBSCRIBE_POST_URL: str = _get_str("SUBSCRIBE_POST_URL", "")
+# Default is the live PitchEdge Formspree form (a public client-side action, not
+# a secret); override via env / Streamlit secrets.
+SUBSCRIBE_POST_URL: str = _get_str(
+    "SUBSCRIBE_POST_URL", "https://formspree.io/f/mzdqzvko"
+)
 SUBSCRIBE_EMAIL_FIELD: str = _get_str("SUBSCRIBE_EMAIL_FIELD", "email")
 
 # --- Reproducibility ----------------------------------------------------------
