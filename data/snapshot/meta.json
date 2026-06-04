@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-06-04T22:43:37.323431+00:00",
-  "source_db": "localhost:5432/pitchedge",
+  "generated_utc": "2026-06-04T23:09:29.538457+00:00",
+  "source_db": "pitchedge",
   "n_upcoming_fixtures": 72,
   "n_sim_teams": 48,
   "n_disagreement_candidates": 72,

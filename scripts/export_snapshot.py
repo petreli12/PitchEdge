@@ -106,7 +106,8 @@ def main() -> None:
 
     meta = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
-        "source_db": config.DB_URL.rsplit("@", 1)[-1],
+        # Database name only — never host/port/credentials (this file is public).
+        "source_db": config.DB_URL.rsplit("/", 1)[-1].split("?")[0],
         "n_upcoming_fixtures": len(upcoming),
         "n_sim_teams": len(sim_rows),
         "n_disagreement_candidates": len(cand_rows),
