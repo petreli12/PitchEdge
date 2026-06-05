@@ -1,0 +1,15 @@
+# PitchEdge nightly pipeline — cron example (Linux / macOS alternative to launchd).
+#
+# Install:
+#   crontab -e
+#   # paste the line below, edit the absolute path to your checkout.
+#
+# Runs daily at 04:00 local time. The wrapper handles venv + logging; cron just
+# needs a sane PATH so `docker` / `uv` resolve. Output is appended to a dated
+# structured log by the scheduler itself (--log-file inside run_nightly.sh).
+#
+# Prerequisite: Docker Postgres must be running. See RUNBOOK.md.
+
+PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+0 4 * * * /Users/CHANGE_ME/Documents/PitchEdge/deploy/run_nightly.sh >> /Users/CHANGE_ME/Documents/PitchEdge/logs/cron.log 2>&1

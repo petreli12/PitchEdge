@@ -14,7 +14,7 @@ TEST_DB_URL := postgresql+psycopg://pitchedge:pitchedge@localhost:5432/pitchedge
 .PHONY: help install db-up db-down db-logs migrate test fmt \
 	ingest-history ingest-fixtures ingest-odds fit-elo fit-dc backtest sim \
 	verify-annex report-sim predict score db-status reload-data dashboard check-teams \
-	telegram-test telegram-post telegram-dry-run
+	telegram-test telegram-post telegram-dry-run nightly nightly-dry-run
 
 help:
 	@echo "Targets:"
@@ -39,6 +39,8 @@ help:
 	@echo "  telegram-post   - live daily_disagreement from DB (Anthropic + predict)"
 	@echo "  telegram-dry-run - disagreement pipeline without sending"
 	@echo "  check-teams     - WC team resolution across history, fixtures, odds API"
+	@echo "  nightly         - run the full nightly pipeline (scheduler)"
+	@echo "  nightly-dry-run - walk the nightly pipeline with no writes/posts"
 	@echo "  db-status       - show DB_URL and table row counts (app vs docker check)"
 	@echo "  reload-data     - re-ingest history, fixtures, odds, then fit Elo"
 	@echo "  test      - run pytest against \$$TEST_DB_URL (pitchedge_test; DB tests truncate it)"
@@ -125,6 +127,14 @@ telegram-dry-run:
 
 check-teams:
 	DB_URL=$(DOCKER_DB_URL) uv run python scripts/check_team_resolution.py
+
+# Full nightly pipeline: refresh -> refit -> predict -> sim -> score -> content.
+nightly:
+	DB_URL=$(DOCKER_DB_URL) uv run python -m pitchedge.scheduler
+
+# Same ordering, zero side effects (no DB writes, no posts, no external calls).
+nightly-dry-run:
+	DB_URL=$(DOCKER_DB_URL) uv run python -m pitchedge.scheduler --dry-run
 
 reload-data: ingest-history ingest-fixtures ingest-odds fit-elo
 	@DB_URL=$(DOCKER_DB_URL) $(MAKE) db-status

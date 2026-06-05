@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  macOS launchd job for the PitchEdge nightly pipeline.
+
+  Install (mirrors the OptionsEdge setup):
+    1. Edit the two ABSOLUTE paths below to match your checkout
+       (replace /Users/CHANGE_ME/Documents/PitchEdge).
+    2. cp deploy/com.pitchedge.nightly.plist ~/Library/LaunchAgents/
+    3. launchctl load ~/Library/LaunchAgents/com.pitchedge.nightly.plist
+    4. launchctl start com.pitchedge.nightly   # optional one-off run
+
+  Runs daily at 04:00 LOCAL time. Logs go to logs/launchd.out / logs/launchd.err
+  (the scheduler also writes its own dated structured log via --log-file).
+
+  Note: Docker Desktop must be running for the Postgres container to be
+  reachable. See RUNBOOK.md.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.pitchedge.nightly</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/CHANGE_ME/Documents/PitchEdge/deploy/run_nightly.sh</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/CHANGE_ME/Documents/PitchEdge</string>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>4</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/CHANGE_ME/Documents/PitchEdge/logs/launchd.out</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/CHANGE_ME/Documents/PitchEdge/logs/launchd.err</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</dict>
+</plist>

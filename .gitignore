@@ -4,6 +4,10 @@
 !.env.example
 .streamlit/secrets.toml
 
+# Scheduler / cron / launchd run logs
+logs/
+*.log
+
 # Large / licensed source data (not for distribution). The committed exception
 # below is the small, derived, public dashboard snapshot + the WC2026 config CSVs.
 data/kaggle/
