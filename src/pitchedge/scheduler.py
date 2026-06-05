@@ -327,6 +327,28 @@ def _db_label(db_url: str | None) -> str:
     return url.rsplit("/", 1)[-1].split("?")[0] if url else "default"
 
 
+def check_db_reachable(db_url: str | None) -> tuple[bool, str]:
+    """Preflight: confirm Postgres answers a trivial ``SELECT 1``.
+
+    Returns ``(ok, detail)`` and never raises. Its purpose is to turn a common
+    failure mode -- the laptop woke for the 04:00 job but Docker/Postgres is not
+    running -- into one clear log line instead of a stack trace deep inside the
+    first DB stage. The bound connect timeout lives in ``db.CONNECT_TIMEOUT_S``.
+    """
+    from sqlalchemy import text
+
+    from pitchedge import db
+
+    label = _db_label(db_url)
+    try:
+        with db.connect(db_url) as conn:
+            conn.execute(text("SELECT 1"))
+        return True, f"db={label} reachable"
+    except Exception as exc:  # noqa: BLE001 - report any failure as unreachable
+        first_line = (str(exc).splitlines() or [""])[0]
+        return False, f"db={label} unreachable: {type(exc).__name__}: {first_line}"
+
+
 def _configure_logging(log_file: str | None, verbose: bool) -> None:
     handlers: list[logging.Handler] = [logging.StreamHandler(sys.stderr)]
     if log_file:
@@ -397,6 +419,11 @@ def main(argv: list[str] | None = None) -> int:
         default=36,
         help="content: look-ahead window for the daily disagreement (default: 36)",
     )
+    parser.add_argument(
+        "--skip-db-check",
+        action="store_true",
+        help="skip the Postgres reachability preflight",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
     args = parser.parse_args(argv)
 
@@ -410,6 +437,24 @@ def main(argv: list[str] | None = None) -> int:
         n_sims=args.n_sims if args.n_sims is not None else config.N_SIMS,
         within_hours=args.within_hours,
     )
+
+    # Preflight DB check. Fatal for a live run (no point fitting/posting against a
+    # dead DB); only a warning in dry-run so inspection/CI never depends on a
+    # running Postgres.
+    if not args.skip_db_check:
+        ok, detail = check_db_reachable(ctx.db_url)
+        if ok:
+            log.info("preflight %s", detail)
+        elif ctx.dry_run:
+            log.warning("preflight %s (continuing: dry-run)", detail)
+        else:
+            log.error(
+                "preflight %s -- aborting. Is Docker/Postgres up? "
+                "Start it (docker compose up -d db) and re-run; see RUNBOOK.md.",
+                detail,
+            )
+            return 2
+
     results = run_pipeline(
         ctx,
         stages=_select_stages(args.stages),

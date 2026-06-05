@@ -27,5 +27,13 @@ else
   PY=(uv run python)
 fi
 
+# Prevent idle sleep for the duration of the run (macOS). Critical when a pmset
+# scheduled wake fires this job overnight: caffeinate holds the system awake
+# until the scheduler process exits, so the Mac can't doze back off mid-pipeline.
+CAFFEINATE=()
+if command -v caffeinate >/dev/null 2>&1; then
+  CAFFEINATE=(caffeinate -i)
+fi
+
 echo "=== pitchedge nightly $(date -u +%FT%TZ) ===" >>"${LOG_FILE}"
-exec "${PY[@]}" -m pitchedge.scheduler --log-file "${LOG_FILE}" "$@"
+exec "${CAFFEINATE[@]}" "${PY[@]}" -m pitchedge.scheduler --log-file "${LOG_FILE}" "$@"

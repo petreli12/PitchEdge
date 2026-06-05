@@ -83,6 +83,27 @@ launchctl unload ~/Library/LaunchAgents/com.pitchedge.nightly.plist
 
 Runs daily at 04:00 local. Adjust `StartCalendarInterval` in the plist.
 
+#### Running overnight while the laptop sleeps
+
+macOS does not run scheduled jobs while asleep. `launchd` will run a *missed*
+`StartCalendarInterval` job once when the Mac next wakes, but for a predictable
+overnight run schedule a power-management wake just before the job:
+
+```bash
+# Wake (or power on, if plugged in) every day at 03:55, 5 min before the 04:00 job.
+sudo pmset repeat wakeorpoweron MTWRFSU 03:55:00
+pmset -g sched          # verify the repeating schedule
+sudo pmset repeat cancel # remove it later
+```
+
+Requirements / caveats:
+- The laptop must be **plugged in** (battery wake from deep sleep is unreliable;
+  `poweron` only works on AC).
+- **Docker Desktop must already be running** before sleep so the Postgres
+  container is up on wake (set Docker to "Start when you log in").
+- `deploy/run_nightly.sh` runs the pipeline under `caffeinate -i`, so once it
+  starts the Mac will not idle-sleep until the run finishes.
+
 ### Linux / cron alternative
 
 See `deploy/crontab.example` — one line, `crontab -e`, edit the path.

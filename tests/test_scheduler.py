@@ -135,6 +135,38 @@ def test_db_label_hides_credentials():
     assert "secret" not in label
 
 
+def test_check_db_reachable_false_for_unreachable():
+    """A dead endpoint yields (False, ...) and never raises (port 1 = refused)."""
+    ok, detail = scheduler.check_db_reachable(
+        "postgresql+psycopg://u:p@127.0.0.1:1/nope"
+    )
+    assert ok is False
+    assert "unreachable" in detail
+    assert "secret" not in detail and "p@" not in detail  # creds never leaked
+
+
+def test_main_live_aborts_when_db_unreachable(monkeypatch):
+    """Live run with a dead DB exits 2 before any stage runs (no stack trace)."""
+    monkeypatch.setattr(
+        scheduler, "check_db_reachable", lambda _url: (False, "db=x unreachable: boom")
+    )
+
+    def fail_if_called(*args, **kwargs):  # pragma: no cover - must not run
+        raise AssertionError("run_pipeline reached despite unreachable DB")
+
+    monkeypatch.setattr(scheduler, "run_pipeline", fail_if_called)
+    assert scheduler.main(["--stages", "score"]) == 2
+
+
+def test_main_skip_db_check_bypasses_preflight(monkeypatch):
+    def boom(*args, **kwargs):  # pragma: no cover - must not run
+        raise AssertionError("preflight ran despite --skip-db-check")
+
+    monkeypatch.setattr(scheduler, "check_db_reachable", boom)
+    rc = scheduler.main(["--dry-run", "--skip-db-check", "--stages", "sim"])
+    assert rc == 0
+
+
 def test_main_dry_run_non_db_stages_returns_zero():
     rc = scheduler.main(
         [
