@@ -112,6 +112,11 @@ dashboard:
 export-snapshot:
 	DB_URL=$(DOCKER_DB_URL) uv run python scripts/export_snapshot.py
 
+# Regenerate the snapshot from the live DB and commit+push it (redeploys the
+# public Streamlit site). Same code path the nightly uses with --publish-snapshot.
+publish-snapshot:
+	DB_URL=$(DOCKER_DB_URL) uv run python -m pitchedge.scheduler --publish-snapshot --stages snapshot
+
 # Run the dashboard locally in snapshot mode (no DB), exactly as the public deploy.
 dashboard-snapshot:
 	DASHBOARD_SNAPSHOT_DIR=data/snapshot uv run streamlit run src/pitchedge/app.py

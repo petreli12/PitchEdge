@@ -109,6 +109,21 @@ def test_dry_run_mutating_stages_skip_without_side_effects(monkeypatch, stage_fn
     assert detail.get("reason") in {"dry_run", "csv_missing", "no_odds_api_key"}
 
 
+def test_snapshot_stage_skips_when_publish_disabled():
+    """Default nightly must not touch git or regenerate files."""
+    status, detail = scheduler.stage_snapshot(_ctx())
+    assert status == "skipped"
+    assert detail["reason"] == "publish_disabled"
+
+
+def test_snapshot_stage_dry_run_does_nothing_even_when_enabled():
+    ctx = _ctx(dry_run=True)
+    ctx.publish_snapshot = True
+    status, detail = scheduler.stage_snapshot(ctx)
+    assert status == "skipped"
+    assert detail["reason"] == "dry_run"
+
+
 def test_content_stage_skips_when_telegram_unconfigured(monkeypatch):
     monkeypatch.setattr(scheduler.config, "TELEGRAM_BOT_TOKEN", "")
     monkeypatch.setattr(scheduler.config, "TELEGRAM_CHAT_ID", "")

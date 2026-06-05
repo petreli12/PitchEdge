@@ -18,7 +18,8 @@ so re-running a night never corrupts data.
 | 5 | `predict`        | Log model/market/blend probs for upcoming fixtures            | `match_predictions` (append-only, pre-kickoff guard) |
 | 6 | `sim`            | Monte Carlo tournament sim                                     | `sim_results` (new batch per run) |
 | 7 | `score`          | Brier/log loss for newly-final fixtures                       | `prediction_scores` (ON CONFLICT DO NOTHING) |
-| 8 | `content`        | Post the day's top model-vs-market disagreement to Telegram   | Telegram (no DB write) |
+| 8 | `snapshot`       | Regenerate `data/snapshot/*.json` + commit/push (OFF unless `--publish-snapshot`) | git (public deploy) |
+| 9 | `content`        | Post the day's top model-vs-market disagreement to Telegram   | Telegram (no DB write) |
 
 Notes:
 - The expensive Dixon-Coles fit happens **once** (stage 4) and is reused by
@@ -152,14 +153,23 @@ idempotent or append-only.
 
 ## Refreshing the public dashboard (separate, deliberate)
 
-The nightly does **not** push to the public Streamlit deploy — publishing stays
-a manual decision so a bad night can't auto-publish. To refresh the live site
-after a good run:
+By default the nightly's `snapshot` stage is **off** (`publish_disabled`), so a
+bad night can't auto-publish. Two ways to refresh the live site after a good run:
+
+Manual (recommended for the locked pre-launch baseline):
 
 ```bash
 make export-snapshot          # freeze DB -> data/snapshot/
 git add data/snapshot && git commit -m "Refresh dashboard snapshot" && git push
+# or, equivalently, the one-shot:
+make publish-snapshot         # export + commit + push via the scheduler stage
 ```
+
+Automated (in-tournament, once you trust the pipeline): add `--publish-snapshot`
+to the launchd job's args (edit `run_nightly.sh` invocation or the plist) so the
+nightly regenerates and pushes the snapshot itself. Requires non-interactive git
+auth (the macOS keychain credential helper, unlocked at run time); a push failure
+fails only the `snapshot` stage and is logged — no data is corrupted.
 
 (Streamlit Cloud redeploys on push.) Verify locally first with
 `make dashboard-snapshot`.

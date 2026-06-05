@@ -58,6 +58,9 @@ class PipelineContext:
     # daily cadence (post about imminent fixtures); widen it for a pre-tournament
     # splash where the next match is days away.
     within_hours: int = 36
+    # Off by default: when True the snapshot stage regenerates data/snapshot/*.json
+    # and commits+pushes it (publishing to the public Streamlit deploy).
+    publish_snapshot: bool = False
     # Populated by the refit stage and reused by predict + sim so the costly
     # Dixon-Coles fit only happens once per night.
     model: Any = None
@@ -238,6 +241,50 @@ def stage_content(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
     return "ok", {"message_id": result.get("message_id")}
 
 
+def stage_snapshot(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
+    """Regenerate ``data/snapshot/*.json`` and (optionally) commit+push to publish.
+
+    Off unless ``--publish-snapshot`` is set, so a routine nightly never dirties
+    the working tree or pushes. When enabled it freezes the current live views
+    into the snapshot files and, if anything changed, commits and pushes to origin
+    -- which triggers the public Streamlit redeploy. A push failure (e.g. no
+    non-interactive git auth) fails this stage only; no data is corrupted and the
+    snapshot can be pushed manually.
+    """
+    if not ctx.publish_snapshot:
+        return "skipped", {"reason": "publish_disabled"}
+    if ctx.dry_run:
+        return "skipped", {"reason": "dry_run", "would": "export+commit+push_snapshot"}
+
+    import subprocess
+
+    root = Path(__file__).resolve().parents[2]
+    snap_dir = "data/snapshot"
+
+    def run(cmd: list[str]) -> str:
+        try:
+            out = subprocess.run(
+                cmd, cwd=root, check=True, capture_output=True, text=True
+            )
+            return out.stdout
+        except subprocess.CalledProcessError as exc:
+            err = (exc.stderr or "").strip().splitlines()
+            raise RuntimeError(
+                f"{' '.join(cmd[:2])} exited {exc.returncode}: "
+                f"{err[-1] if err else 'no stderr'}"
+            ) from exc
+
+    run([sys.executable, "scripts/export_snapshot.py"])
+    changed = run(["git", "status", "--porcelain", snap_dir]).strip()
+    if not changed:
+        return "ok", {"published": False, "reason": "no_changes"}
+
+    run(["git", "add", snap_dir])
+    run(["git", "commit", "-m", f"Refresh public snapshot {ctx.now:%Y-%m-%d}"])
+    run(["git", "push", "origin", "HEAD"])
+    return "ok", {"published": True, "files_changed": len(changed.splitlines())}
+
+
 # Ordered pipeline. Name -> callable. Order matters (dependencies flow downward).
 STAGES: list[tuple[str, Callable[[PipelineContext], tuple[str, dict[str, Any]]]]] = [
     ("ingest_history", stage_ingest_history),
@@ -247,6 +294,7 @@ STAGES: list[tuple[str, Callable[[PipelineContext], tuple[str, dict[str, Any]]]]
     ("predict", stage_predict),
     ("sim", stage_sim),
     ("score", stage_score),
+    ("snapshot", stage_snapshot),
     ("content", stage_content),
 ]
 
@@ -420,6 +468,11 @@ def main(argv: list[str] | None = None) -> int:
         help="content: look-ahead window for the daily disagreement (default: 36)",
     )
     parser.add_argument(
+        "--publish-snapshot",
+        action="store_true",
+        help="snapshot stage: regenerate data/snapshot/*.json and commit+push it",
+    )
+    parser.add_argument(
         "--skip-db-check",
         action="store_true",
         help="skip the Postgres reachability preflight",
@@ -436,6 +489,7 @@ def main(argv: list[str] | None = None) -> int:
         seed=args.seed if args.seed is not None else config.RANDOM_SEED,
         n_sims=args.n_sims if args.n_sims is not None else config.N_SIMS,
         within_hours=args.within_hours,
+        publish_snapshot=args.publish_snapshot,
     )
 
     # Preflight DB check. Fatal for a live run (no point fitting/posting against a
