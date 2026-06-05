@@ -57,10 +57,31 @@ def _pages() -> tuple[str, ...]:
     return ("Predictions", "Launch board", "About")
 
 
+# A probability is only displayed as 100% when it is genuinely ~1.0. Anything
+# strictly below this threshold is floored to 99.9% so the UI never implies a
+# mathematical certainty (e.g. finishing top 2 of a group) that the sim did not
+# actually produce.
+_CERTAINTY_EPS = 0.99995
+
+
 def _pct(x: float | None) -> str:
     if x is None or (isinstance(x, float) and np.isnan(x)):
         return "—"
-    return f"{100.0 * float(x):.1f}%"
+    return f"{_pct_cell(x):.1f}%"
+
+
+def _pct_cell(x: float | None) -> float | None:
+    """Percentage-point value (0-100) for table cells, clamped away from 100.
+
+    Returns ``None`` for missing values. Values in ``[99.9%, 100%)`` are floored
+    to 99.9 so only genuinely ~1.0 probabilities render as 100%.
+    """
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return None
+    p = float(x)
+    if p >= _CERTAINTY_EPS:
+        return 100.0
+    return min(p * 100.0, 99.9)
 
 
 def _kickoff_label(ko: Any) -> str:
@@ -146,7 +167,7 @@ rows are shown alongside for comparison only.
         top_six = sim_rows[:6]
         proof = pd.DataFrame(
             [
-                {"Team": row["name"], "P(win title)": float(row["p_win"])}
+                {"Team": row["name"], "P(win title)": _pct_cell(row["p_win"])}
                 for row in top_six
             ]
         )
@@ -156,7 +177,7 @@ rows are shown alongside for comparison only.
             hide_index=True,
             column_config={
                 "P(win title)": st.column_config.NumberColumn(
-                    format="percent",
+                    format="%.1f%%",
                     help="Model sim probability to win the tournament",
                 ),
             },
@@ -263,12 +284,12 @@ def render_tournament_odds_tab(sim_rows: list[dict[str, Any]]) -> None:
             {
                 "Team": r["name"],
                 "Group": r.get("group_label") or "",
-                "P(win)": float(r["p_win"]),
-                "P(final)": float(r["p_final"]),
-                "P(SF)": float(r["p_sf"]),
-                "P(QF)": float(r["p_qf"]),
-                "P(R16)": float(r["p_r16"]),
-                "P(advance)": float(r["p_advance_group"]),
+                "P(win)": _pct_cell(r["p_win"]),
+                "P(final)": _pct_cell(r["p_final"]),
+                "P(SF)": _pct_cell(r["p_sf"]),
+                "P(QF)": _pct_cell(r["p_qf"]),
+                "P(R16)": _pct_cell(r["p_r16"]),
+                "P(advance)": _pct_cell(r["p_advance_group"]),
             }
             for r in sim_rows
         ]
@@ -278,12 +299,12 @@ def render_tournament_odds_tab(sim_rows: list[dict[str, Any]]) -> None:
         use_container_width=True,
         hide_index=True,
         column_config={
-            "P(win)": st.column_config.NumberColumn(format="percent", help="Title"),
-            "P(final)": st.column_config.NumberColumn(format="percent"),
-            "P(SF)": st.column_config.NumberColumn(format="percent"),
-            "P(QF)": st.column_config.NumberColumn(format="percent"),
-            "P(R16)": st.column_config.NumberColumn(format="percent"),
-            "P(advance)": st.column_config.NumberColumn(format="percent"),
+            "P(win)": st.column_config.NumberColumn(format="%.1f%%", help="Title"),
+            "P(final)": st.column_config.NumberColumn(format="%.1f%%"),
+            "P(SF)": st.column_config.NumberColumn(format="%.1f%%"),
+            "P(QF)": st.column_config.NumberColumn(format="%.1f%%"),
+            "P(R16)": st.column_config.NumberColumn(format="%.1f%%"),
+            "P(advance)": st.column_config.NumberColumn(format="%.1f%%"),
         },
     )
 
@@ -310,11 +331,11 @@ def render_advancement_tab(sim_rows: list[dict[str, Any]]) -> None:
             [
                 {
                     "Team": t["name"],
-                    "P(top 2 in group)": float(t["p_advance_group"]),
-                    "P(R16)": float(t["p_r16"]),
-                    "P(SF)": float(t["p_sf"]),
-                    "P(final)": float(t["p_final"]),
-                    "P(win)": float(t["p_win"]),
+                    "P(top 2 in group)": _pct_cell(t["p_advance_group"]),
+                    "P(R16)": _pct_cell(t["p_r16"]),
+                    "P(SF)": _pct_cell(t["p_sf"]),
+                    "P(final)": _pct_cell(t["p_final"]),
+                    "P(win)": _pct_cell(t["p_win"]),
                 }
                 for t in teams
             ]
@@ -324,11 +345,11 @@ def render_advancement_tab(sim_rows: list[dict[str, Any]]) -> None:
             use_container_width=True,
             hide_index=True,
             column_config={
-                "P(top 2 in group)": st.column_config.NumberColumn(format="percent"),
-                "P(R16)": st.column_config.NumberColumn(format="percent"),
-                "P(SF)": st.column_config.NumberColumn(format="percent"),
-                "P(final)": st.column_config.NumberColumn(format="percent"),
-                "P(win)": st.column_config.NumberColumn(format="percent"),
+                "P(top 2 in group)": st.column_config.NumberColumn(format="%.1f%%"),
+                "P(R16)": st.column_config.NumberColumn(format="%.1f%%"),
+                "P(SF)": st.column_config.NumberColumn(format="%.1f%%"),
+                "P(final)": st.column_config.NumberColumn(format="%.1f%%"),
+                "P(win)": st.column_config.NumberColumn(format="%.1f%%"),
             },
         )
 
@@ -445,13 +466,13 @@ def render_launch_board(
     st.subheader("Title odds (latest sim)")
     if sim_rows:
         title_df = pd.DataFrame(
-            [{"Team": r["name"], "P(win)": float(r["p_win"])} for r in sim_rows]
+            [{"Team": r["name"], "P(win)": _pct_cell(r["p_win"])} for r in sim_rows]
         )
         st.dataframe(
             title_df,
             use_container_width=True,
             hide_index=True,
-            column_config={"P(win)": st.column_config.NumberColumn(format="percent")},
+            column_config={"P(win)": st.column_config.NumberColumn(format="%.1f%%")},
         )
     elif not public:
         st.info("Run `make sim` to populate title odds.")

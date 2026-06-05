@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 import pytest
 
@@ -167,6 +169,42 @@ def test_rank_group_two_way_h2h():
     ranked = rank_group(standings, results, rng)
     assert ranked[0] == 2
     assert ranked[1] == 1
+
+
+def test_rank_group_ranks_by_points_not_insertion_order():
+    """Regression: ranking must follow simulated results, not group-list order.
+
+    The team listed first (id=1) has the fewest points and must finish last; the
+    team listed last (id=4) has the most points and must finish first. A prior
+    bug returned teams in insertion order whenever their (points, GD, GF) tuples
+    were distinct, pinning the first-listed team to 1st in ~100% of sims.
+    """
+    standings = {
+        1: GroupStanding(1, "A", points=0, goals_for=1, goals_against=9),
+        2: GroupStanding(2, "A", points=3, goals_for=3, goals_against=5),
+        3: GroupStanding(3, "A", points=6, goals_for=5, goals_against=3),
+        4: GroupStanding(4, "A", points=9, goals_for=9, goals_against=1),
+    }
+    results = [(4, 1, 3, 0), (3, 1, 2, 1), (2, 1, 2, 1),
+               (4, 3, 1, 0), (4, 2, 2, 0), (3, 2, 1, 0)]
+    expected = [4, 3, 2, 1]
+    for perm in itertools.permutations([1, 2, 3, 4]):
+        shuffled = {tid: standings[tid] for tid in perm}
+        ranked = rank_group(shuffled, results, np.random.default_rng(0))
+        assert ranked == expected, f"insertion order {perm} -> {ranked}"
+
+
+def test_rank_group_gd_breaks_equal_points():
+    """Equal points resolved by goal difference then goals-for (not list order)."""
+    standings = {
+        1: GroupStanding(1, "A", points=6, goals_for=4, goals_against=3),  # GD +1
+        2: GroupStanding(2, "A", points=6, goals_for=7, goals_against=2),  # GD +5
+    }
+    results = [(1, 3, 2, 1), (2, 3, 4, 0)]
+    for perm in ([1, 2], [2, 1]):
+        shuffled = {tid: standings[tid] for tid in perm}
+        ranked = rank_group(shuffled, results, np.random.default_rng(0))
+        assert ranked[0] == 2 and ranked[1] == 1
 
 
 def test_build_qualifiers_resolves_annex():

@@ -127,34 +127,34 @@ def rank_group(
     results: list[tuple[int, int, int, int]],
     rng: np.random.Generator,
 ) -> list[int]:
-    """Return ``team_id`` list best → worst (length 4)."""
-    team_ids = list(standings.keys())
+    """Return ``team_id`` list best -> worst (length 4).
+
+    Orders teams by the FIFA overall criteria (points, goal difference, goals
+    for) in descending order, then resolves any block of teams that is exactly
+    tied on all three via head-to-head / fair-play / drawing of lots
+    (``_rank_subset``). The ordering must depend only on results, never on the
+    insertion order of ``standings``.
+    """
+
+    def overall_key(tid: int) -> tuple[int, int, int]:
+        s = standings[tid]
+        return (s.points, s.goal_difference, s.goals_for)
+
+    sorted_ids = sorted(standings.keys(), key=overall_key, reverse=True)
+
     ordered: list[int] = []
-    remaining = list(team_ids)
-    while remaining:
-        if len(remaining) == 1:
-            ordered.extend(remaining)
-            break
-        block = [
-            tid
-            for tid in remaining
-            if (
-                standings[tid].points,
-                standings[tid].goal_difference,
-                standings[tid].goals_for,
-            )
-            == (
-                standings[remaining[0]].points,
-                standings[remaining[0]].goal_difference,
-                standings[remaining[0]].goals_for,
-            )
-        ]
+    i = 0
+    n = len(sorted_ids)
+    while i < n:
+        j = i + 1
+        while j < n and overall_key(sorted_ids[j]) == overall_key(sorted_ids[i]):
+            j += 1
+        block = sorted_ids[i:j]
         if len(block) == 1:
-            block = [remaining[0]]
-        ranked_block = _rank_subset(block, standings, results, rng)
-        for tid in ranked_block:
-            ordered.append(tid)
-            remaining.remove(tid)
+            ordered.append(block[0])
+        else:
+            ordered.extend(_rank_subset(block, standings, results, rng))
+        i = j
     return ordered
 
 
