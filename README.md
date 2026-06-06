@@ -2,9 +2,6 @@
 
 A **publicly calibrated** World Cup prediction engine and content flywheel.
 
-> Working name — rename freely. It deliberately echoes the OptionsEdge brand family.
-
-## The one-sentence pitch
 
 The only World Cup model that posts its probabilities *before* kickoff and
 publishes its own calibration scorecard — model vs. market, with receipts.
