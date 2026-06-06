@@ -59,5 +59,3 @@ pitchedge/
 Python 3.12 · uv · Postgres 16 (Docker) · pandas/numpy/scipy · Streamlit ·
 Anthropic API (narrative) · Pillow + matplotlib (cards) · Telegram Bot API ·
 cron / launchd (scheduler).
-
-Deliberately the same shape as OptionsEdge so ~60% of that infra muscle ports.
