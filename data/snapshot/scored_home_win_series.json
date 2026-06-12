@@ -1,7 +1,19 @@
 {
-  "model_home": [],
-  "market_home": [],
-  "outcomes": [],
-  "outcomes_home": [],
-  "n_fixtures": 0
+  "model_home": [
+    0.6123926797763597,
+    0.32843322101193667
+  ],
+  "market_home": [
+    0.6753085461460839,
+    0.35698128727123174
+  ],
+  "outcomes": [
+    0,
+    0
+  ],
+  "outcomes_home": [
+    1.0,
+    1.0
+  ],
+  "n_fixtures": 2
 }
