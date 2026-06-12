@@ -153,10 +153,12 @@ idempotent or append-only.
 
 ## Refreshing the public dashboard (separate, deliberate)
 
-By default the nightly's `snapshot` stage is **off** (`publish_disabled`), so a
-bad night can't auto-publish. Two ways to refresh the live site after a good run:
+By default the nightly's `snapshot` stage is **off** unless `--publish-snapshot` is
+passed. The installed `deploy/com.pitchedge.nightly.plist` includes that flag
+during the tournament so the public Streamlit site refreshes after each good run.
+Remove it from the plist if you want manual-only publishing again.
 
-Manual (recommended for the locked pre-launch baseline):
+Manual refresh (or when auto-publish is disabled):
 
 ```bash
 make export-snapshot          # freeze DB -> data/snapshot/

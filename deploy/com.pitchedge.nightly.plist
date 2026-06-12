@@ -27,6 +27,7 @@
         <string>pitchedge.scheduler</string>
         <string>--log-file</string>
         <string>/Users/oladapoolayemi/Projects/PitchEdge/logs/nightly.log</string>
+        <string>--publish-snapshot</string>
     </array>
 
     <key>WorkingDirectory</key>
