@@ -4,7 +4,7 @@
 
   Install (mirrors the OptionsEdge setup):
     1. Edit the two ABSOLUTE paths below to match your checkout
-       (replace /Users/CHANGE_ME/Documents/PitchEdge).
+       (replace /Users/oladapoolayemi/Projects/PitchEdge).
     2. cp deploy/com.pitchedge.nightly.plist ~/Library/LaunchAgents/
     3. launchctl load ~/Library/LaunchAgents/com.pitchedge.nightly.plist
     4. launchctl start com.pitchedge.nightly   # optional one-off run
@@ -22,15 +22,15 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/oladapoolayemi/Documents/PitchEdge/.venv/bin/python</string>
+        <string>/Users/oladapoolayemi/Projects/PitchEdge/.venv/bin/python</string>
         <string>-m</string>
         <string>pitchedge.scheduler</string>
         <string>--log-file</string>
-        <string>/Users/oladapoolayemi/Documents/PitchEdge/logs/nightly.log</string>
+        <string>/Users/oladapoolayemi/Projects/PitchEdge/logs/nightly.log</string>
     </array>
 
     <key>WorkingDirectory</key>
-    <string>/Users/oladapoolayemi/Documents/PitchEdge</string>
+    <string>/Users/oladapoolayemi/Projects/PitchEdge</string>
 
     <key>StartCalendarInterval</key>
     <dict>
@@ -44,10 +44,10 @@
     <false/>
 
     <key>StandardOutPath</key>
-    <string>/Users/CHANGE_ME/Documents/PitchEdge/logs/launchd.out</string>
+    <string>/Users/oladapoolayemi/Projects/PitchEdge/logs/launchd.out</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/CHANGE_ME/Documents/PitchEdge/logs/launchd.err</string>
+    <string>/Users/oladapoolayemi/Projects/PitchEdge/logs/launchd.err</string>
 
     <key>EnvironmentVariables</key>
     <dict>
