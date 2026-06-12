@@ -186,6 +186,35 @@ def stage_sim(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
     return "ok", {"n_sims": agg.n_sims, "teams": len(agg.by_team)}
 
 
+def stage_sync_results(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
+    """Upsert finished WC scores and mark fixtures final (enables scoring)."""
+    if ctx.dry_run:
+        from sqlalchemy import text
+
+        from pitchedge import db
+
+        with db.connect(ctx.db_url) as conn:
+            pending = conn.execute(
+                text(
+                    "SELECT count(*) FROM fixtures f "
+                    "WHERE f.status = 'scheduled' AND f.kickoff_utc < :now"
+                ),
+                {"now": ctx.now},
+            ).scalar()
+        return "skipped", {"reason": "dry_run", "past_kickoff_still_scheduled": pending}
+
+    from pitchedge.ingest.results import apply_known_results, sync_from_history_csv
+
+    csv_upserted, csv_marked = sync_from_history_csv(db_url=ctx.db_url)
+    applied = apply_known_results(db_url=ctx.db_url)
+    return "ok", {
+        "csv_upserted": csv_upserted,
+        "csv_marked_final": csv_marked,
+        "known_applied": len(applied),
+        "fixtures_marked": sum(1 for r in applied if r.get("fixture_marked_final")),
+    }
+
+
 def stage_score(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
     """Score newly-final fixtures (idempotent; never mutates predictions)."""
     if ctx.dry_run:
@@ -293,6 +322,7 @@ STAGES: list[tuple[str, Callable[[PipelineContext], tuple[str, dict[str, Any]]]]
     ("refit_ratings", stage_refit_ratings),
     ("predict", stage_predict),
     ("sim", stage_sim),
+    ("sync_results", stage_sync_results),
     ("score", stage_score),
     ("snapshot", stage_snapshot),
     ("content", stage_content),

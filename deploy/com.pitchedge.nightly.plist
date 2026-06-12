@@ -22,11 +22,15 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/CHANGE_ME/Documents/PitchEdge/deploy/run_nightly.sh</string>
+        <string>/Users/oladapoolayemi/Documents/PitchEdge/.venv/bin/python</string>
+        <string>-m</string>
+        <string>pitchedge.scheduler</string>
+        <string>--log-file</string>
+        <string>/Users/oladapoolayemi/Documents/PitchEdge/logs/nightly.log</string>
     </array>
 
     <key>WorkingDirectory</key>
-    <string>/Users/CHANGE_ME/Documents/PitchEdge</string>
+    <string>/Users/oladapoolayemi/Documents/PitchEdge</string>
 
     <key>StartCalendarInterval</key>
     <dict>
