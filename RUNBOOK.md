@@ -17,13 +17,20 @@ so re-running a night never corrupts data.
 | 4 | `refit_ratings`  | Fit Elo, then Dixon-Coles (held in memory, reused below)      | `team_ratings` |
 | 5 | `predict`        | Log model/market/blend probs for upcoming fixtures            | `match_predictions` (append-only, pre-kickoff guard) |
 | 6 | `sim`            | Monte Carlo tournament sim                                     | `sim_results` (new batch per run) |
-| 7 | `score`          | Brier/log loss for newly-final fixtures                       | `prediction_scores` (ON CONFLICT DO NOTHING) |
-| 8 | `snapshot`       | Regenerate `data/snapshot/*.json` + commit/push (OFF unless `--publish-snapshot`) | git (public deploy) |
-| 9 | `content`        | Post the day's top model-vs-market disagreement to Telegram   | Telegram (no DB write) |
+| 7 | `sync_results`   | Pull finished scores (the-odds-api `/scores`, then history CSV, then hard-coded openers) and mark fixtures final | `raw_results` (upsert), `fixtures.status` |
+| 8 | `score`          | Brier/log loss for newly-final fixtures                       | `prediction_scores` (ON CONFLICT DO NOTHING) |
+| 9 | `snapshot`       | Regenerate `data/snapshot/*.json` + commit/push (OFF unless `--publish-snapshot`) | git (public deploy) |
+| 10 | `content`       | Post the day's top model-vs-market disagreement to Telegram   | Telegram (no DB write) |
 
 Notes:
 - The expensive Dixon-Coles fit happens **once** (stage 4) and is reused by
   `predict` and `sim`.
+- `sync_results` is what keeps the public calibration receipts moving: the live
+  `/scores` feed (requires `ODDS_API_KEY`) upserts finished scores and flips
+  fixtures to `final` so `score` can write `prediction_scores`. A scores-feed
+  error is logged and swallowed (it never aborts the night); the history CSV and
+  the small hard-coded opener list still run as fallbacks. Run it by hand with
+  `make sync-results`.
 - `predict` is **append-only**: each run writes a fresh batch (immutable
   receipts). Downstream readers (`score`, dashboard, disagreement) use the
   **latest** batch per fixture, so re-running is safe — it never rewrites or

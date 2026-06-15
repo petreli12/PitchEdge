@@ -124,6 +124,53 @@ def test_snapshot_stage_dry_run_does_nothing_even_when_enabled():
     assert detail["reason"] == "dry_run"
 
 
+def test_sync_results_uses_scores_api_when_key_set(monkeypatch):
+    """With an odds key, the live /scores feed runs before CSV + known fallbacks."""
+    import pitchedge.ingest.results as results
+    import pitchedge.ingest.scores as scores
+
+    monkeypatch.setattr(scheduler.config, "ODDS_API_KEY", "key")
+    monkeypatch.setattr(scores, "sync_from_scores_api", lambda **kw: (5, 4))
+    monkeypatch.setattr(results, "sync_from_history_csv", lambda **kw: (0, 0))
+    monkeypatch.setattr(results, "apply_known_results", lambda **kw: [])
+
+    status, detail = scheduler.stage_sync_results(_ctx())
+    assert status == "ok"
+    assert detail["api_matched"] == 5
+    assert detail["api_marked_final"] == 4
+
+
+def test_sync_results_scores_api_failure_does_not_abort(monkeypatch):
+    """A scores-feed error is logged and swallowed so CSV/known + scoring still run."""
+    import pitchedge.ingest.results as results
+    import pitchedge.ingest.scores as scores
+
+    def boom(**kw):
+        raise RuntimeError("feed down")
+
+    monkeypatch.setattr(scheduler.config, "ODDS_API_KEY", "key")
+    monkeypatch.setattr(scores, "sync_from_scores_api", boom)
+    monkeypatch.setattr(results, "sync_from_history_csv", lambda **kw: (1, 1))
+    monkeypatch.setattr(results, "apply_known_results", lambda **kw: [])
+
+    status, detail = scheduler.stage_sync_results(_ctx())
+    assert status == "ok"
+    assert detail["api_error"] == "RuntimeError"
+    assert detail["csv_upserted"] == 1
+
+
+def test_sync_results_skips_scores_api_without_key(monkeypatch):
+    import pitchedge.ingest.results as results
+
+    monkeypatch.setattr(scheduler.config, "ODDS_API_KEY", "")
+    monkeypatch.setattr(results, "sync_from_history_csv", lambda **kw: (0, 0))
+    monkeypatch.setattr(results, "apply_known_results", lambda **kw: [])
+
+    status, detail = scheduler.stage_sync_results(_ctx())
+    assert status == "ok"
+    assert detail["api"] == "no_odds_api_key"
+
+
 def test_content_stage_skips_when_telegram_unconfigured(monkeypatch):
     monkeypatch.setattr(scheduler.config, "TELEGRAM_BOT_TOKEN", "")
     monkeypatch.setattr(scheduler.config, "TELEGRAM_CHAT_ID", "")

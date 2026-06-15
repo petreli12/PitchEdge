@@ -187,7 +187,12 @@ def stage_sim(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
 
 
 def stage_sync_results(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
-    """Upsert finished WC scores and mark fixtures final (enables scoring)."""
+    """Upsert finished WC scores and mark fixtures final (enables scoring).
+
+    Results flow from three sources, in order, all idempotent: the live
+    the-odds-api ``/scores`` feed (the self-updating source during the
+    tournament), the history CSV, and a small hard-coded fallback for the openers.
+    """
     if ctx.dry_run:
         from sqlalchemy import text
 
@@ -205,14 +210,35 @@ def stage_sync_results(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:
 
     from pitchedge.ingest.results import apply_known_results, sync_from_history_csv
 
+    detail: dict[str, Any] = {}
+    if config.ODDS_API_KEY.strip():
+        from pitchedge.ingest.scores import sync_from_scores_api
+
+        try:
+            api_matched, api_marked = sync_from_scores_api(
+                fetch_live=True, db_url=ctx.db_url
+            )
+            detail["api_matched"] = api_matched
+            detail["api_marked_final"] = api_marked
+        except Exception as exc:  # noqa: BLE001 - a feed hiccup must not block scoring
+            log.warning("sync_results: scores API failed (%s); continuing", exc)
+            detail["api_error"] = type(exc).__name__
+    else:
+        detail["api"] = "no_odds_api_key"
+
     csv_upserted, csv_marked = sync_from_history_csv(db_url=ctx.db_url)
     applied = apply_known_results(db_url=ctx.db_url)
-    return "ok", {
-        "csv_upserted": csv_upserted,
-        "csv_marked_final": csv_marked,
-        "known_applied": len(applied),
-        "fixtures_marked": sum(1 for r in applied if r.get("fixture_marked_final")),
-    }
+    detail.update(
+        {
+            "csv_upserted": csv_upserted,
+            "csv_marked_final": csv_marked,
+            "known_applied": len(applied),
+            "fixtures_marked": sum(
+                1 for r in applied if r.get("fixture_marked_final")
+            ),
+        }
+    )
+    return "ok", detail
 
 
 def stage_score(ctx: PipelineContext) -> tuple[str, dict[str, Any]]:

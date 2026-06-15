@@ -1,0 +1,55 @@
+[
+  {
+    "id": "score_event_001",
+    "sport_key": "soccer_fifa_world_cup",
+    "sport_title": "FIFA World Cup",
+    "commence_time": "2026-06-12T17:00:00Z",
+    "completed": true,
+    "home_team": "Team 1",
+    "away_team": "Team 2",
+    "scores": [
+      {"name": "Team 1", "score": "3"},
+      {"name": "Team 2", "score": "1"}
+    ],
+    "last_update": "2026-06-12T19:00:00Z"
+  },
+  {
+    "id": "score_event_002_swapped",
+    "sport_key": "soccer_fifa_world_cup",
+    "sport_title": "FIFA World Cup",
+    "commence_time": "2026-06-13T17:00:00Z",
+    "completed": true,
+    "home_team": "Team 4",
+    "away_team": "Team 3",
+    "scores": [
+      {"name": "Team 4", "score": "0"},
+      {"name": "Team 3", "score": "2"}
+    ],
+    "last_update": "2026-06-13T19:00:00Z"
+  },
+  {
+    "id": "score_event_003_not_started",
+    "sport_key": "soccer_fifa_world_cup",
+    "sport_title": "FIFA World Cup",
+    "commence_time": "2026-06-16T17:00:00Z",
+    "completed": false,
+    "home_team": "Team 1",
+    "away_team": "Team 4",
+    "scores": null,
+    "last_update": "2026-06-01T12:00:00Z"
+  },
+  {
+    "id": "score_event_004_unmapped",
+    "sport_key": "soccer_fifa_world_cup",
+    "sport_title": "FIFA World Cup",
+    "commence_time": "2026-06-14T17:00:00Z",
+    "completed": true,
+    "home_team": "Unknown Home",
+    "away_team": "Unknown Away",
+    "scores": [
+      {"name": "Unknown Home", "score": "1"},
+      {"name": "Unknown Away", "score": "1"}
+    ],
+    "last_update": "2026-06-14T19:00:00Z"
+  }
+]

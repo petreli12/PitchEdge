@@ -142,6 +142,9 @@ ODDS_API_BASE_URL: str = _get_str("ODDS_API_BASE_URL", "https://api.the-odds-api
 # TODO: confirm the sport key for WC 2026 on your plan (GET /v4/sports).
 ODDS_API_SPORT_KEY: str = _get_str("ODDS_API_SPORT_KEY", "soccer_fifa_world_cup")
 ODDS_API_REGIONS: str = _get_str("ODDS_API_REGIONS", "us,uk,eu")
+# /scores look-back window for completed results (the-odds-api caps this at 1-3).
+# The nightly results sync reads finished games from this many days in the past.
+ODDS_API_SCORES_DAYS_FROM: int = _get_int("ODDS_API_SCORES_DAYS_FROM", 3)
 
 # --- Elo (international ratings prior) ----------------------------------------
 ELO_INITIAL: float = _get_float("ELO_INITIAL", 1500.0)

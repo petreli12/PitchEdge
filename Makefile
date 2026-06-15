@@ -12,7 +12,7 @@ DOCKER_DB_URL := postgresql+psycopg://pitchedge:pitchedge@localhost:5432/pitched
 TEST_DB_URL := postgresql+psycopg://pitchedge:pitchedge@localhost:5432/pitchedge_test
 
 .PHONY: help install db-up db-down db-logs migrate test fmt \
-	ingest-history ingest-fixtures ingest-odds fit-elo fit-dc backtest sim \
+	ingest-history ingest-fixtures ingest-odds sync-results fit-elo fit-dc backtest sim \
 	verify-annex report-sim predict score db-status reload-data dashboard check-teams \
 	telegram-test telegram-post telegram-dry-run nightly nightly-dry-run
 
@@ -26,6 +26,7 @@ help:
 	@echo "  ingest-history  - load Kaggle/GitHub results.csv into raw_results"
 	@echo "  ingest-fixtures - load WC teams + fixtures CSVs"
 	@echo "  ingest-odds     - fetch live odds (requires ODDS_API_KEY)"
+	@echo "  sync-results    - pull finished scores -> raw_results + mark fixtures final"
 	@echo "  fit-elo         - fit Elo on raw_results -> team_ratings"
 	@echo "  fit-dc          - fit Dixon-Coles on raw_results (in-memory; logs NLL)"
 	@echo "  backtest        - Phase 4 held-out tournaments + blend w sweep"
@@ -73,6 +74,11 @@ ingest-fixtures:
 
 ingest-odds:
 	DB_URL=$(DOCKER_DB_URL) uv run python -m pitchedge.ingest.odds
+
+# Sync finished-match results from the-odds-api /scores -> raw_results + mark
+# fixtures final (enables scoring / receipts). Requires ODDS_API_KEY.
+sync-results:
+	DB_URL=$(DOCKER_DB_URL) uv run python -m pitchedge.ingest.scores
 
 fit-elo:
 	DB_URL=$(DOCKER_DB_URL) uv run python -m pitchedge.model.elo
