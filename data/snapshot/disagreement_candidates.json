@@ -17,23 +17,6 @@
     "salience": 1.0
   },
   {
-    "fixture_id": 14,
-    "home": "Spain",
-    "away": "Cape Verde",
-    "stage": "Group H",
-    "kickoff_local": "Jun 15, 16:00 UTC",
-    "venue": null,
-    "p_home": 0.836482317664013,
-    "p_draw": 0.12572895671666834,
-    "p_away": 0.03778872561931872,
-    "exp_home_goals": 2.5488669010487364,
-    "exp_away_goals": 0.3995766258496784,
-    "market_p_home": 0.914998700285937,
-    "market_p_draw": 0.062334286456979464,
-    "market_p_away": 0.02266701325708344,
-    "salience": 1.0
-  },
-  {
     "fixture_id": 15,
     "home": "Iran",
     "away": "New Zealand",

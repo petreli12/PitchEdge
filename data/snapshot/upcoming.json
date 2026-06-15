@@ -1,23 +1,5 @@
 [
   {
-    "fixture_id": 14,
-    "kickoff_utc": "2026-06-15T16:00:00+00:00",
-    "stage": "Group H",
-    "group_label": "H",
-    "home": "Spain",
-    "away": "Cape Verde",
-    "model_p_home": 0.8364823176640129,
-    "model_p_draw": 0.1257289567166683,
-    "model_p_away": 0.03778872561931871,
-    "model_predicted_utc": "2026-06-15T10:00:00.741241+00:00",
-    "market_p_home": 0.914998700285937,
-    "market_p_draw": 0.062334286456979464,
-    "market_p_away": 0.02266701325708344,
-    "blend_p_home": 0.9149987002859371,
-    "blend_p_draw": 0.06233428645697947,
-    "blend_p_away": 0.022667013257083445
-  },
-  {
     "fixture_id": 16,
     "kickoff_utc": "2026-06-15T19:00:00+00:00",
     "stage": "Group G",
