@@ -1,10 +1,10 @@
 {
-  "generated_utc": "2026-06-17T10:01:24.159314+00:00",
+  "generated_utc": "2026-06-18T12:38:51.388949+00:00",
   "source_db": "pitchedge",
-  "n_upcoming_fixtures": 52,
+  "n_upcoming_fixtures": 48,
   "n_sim_teams": 48,
-  "n_disagreement_candidates": 52,
-  "n_scored_fixtures": 20,
+  "n_disagreement_candidates": 48,
+  "n_scored_fixtures": 24,
   "model_temperature": 1.0,
   "blend_w": 0.0
 }
