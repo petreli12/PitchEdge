@@ -1,6 +1,6 @@
 {
-  "upcoming_fixtures": 18,
-  "fixtures_with_model_pred": 18,
+  "upcoming_fixtures": 12,
+  "fixtures_with_model_pred": 12,
   "earliest_model_utc": "2026-06-04T21:26:16.011501+00:00",
-  "latest_model_utc": "2026-06-25T10:00:01.725991+00:00"
+  "latest_model_utc": "2026-06-26T10:00:00.474620+00:00"
 }
